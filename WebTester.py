@@ -4,12 +4,10 @@ import sys
 
 
 def sending_request(host, path, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    context = ssl.create_default_context()
+    s = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=host)
 
-    if port == 443:
-        context = ssl.create_default_context()
-        s = context.wrap_socket(s, server_hostname=host)
+    s.connect((host, port))
 
     request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: Keep-Alive\r\n\r\n"
     s.send(request.encode())
@@ -23,9 +21,10 @@ def sending_request(host, path, port):
             s.close()
             break
 
-    print(response)
+    response_str = response.decode("utf-8", errors="ignore")
+    header = response_str.split("\r\n\r\n", 1)[0]
 
-    return response
+    return header
 
 def web_tester(url):
     if url.startswith("https://"):
@@ -42,13 +41,8 @@ def web_tester(url):
     host = url_segments[0]
     path = "/" + url_segments[1] if len(url_segments) > 1 else "/"
 
-    response = sending_request(host, path, port)
-
-    print(response)
-
-
-
-    
+    header= sending_request(host, path, port)
+    print(header)
 
 
 if __name__ == "__main__":
