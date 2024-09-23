@@ -3,10 +3,27 @@ import ssl
 import sys
 
 
-def processing_header(header):
-    for header_line in header:
-        if "Set-Cookie" in header_line:
-
+def checking_status(header):
+    header_lines = header.splitlines()
+    for line in header_lines:
+        if "404" in line:
+            print("Error: 404 \nThe requested document does not exist on the server, access attempt failed.")
+            return False
+        elif "505" in line:
+            print("Error: 505 \nHTTP Version Not Supported, access attempt failed.")
+            return False
+        elif "302" in line:
+            for subline in header_lines:
+                if "Location" in subline:
+                    redirection_url = subline.split(":", 1)[1]
+                    web_tester(redirection_url)
+                    return False
+        elif "401" in line:
+            print("Error: 401 \nThe web page is password protected and cannot be accessed without proper credentials.")
+            return False
+    
+    return True
+        
 
 
 
@@ -14,6 +31,12 @@ def sending_request(host, path, port):
     context = ssl.create_default_context()
     context.set_alpn_protocols(['http/1.1', 'h2'])
     s = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=host)
+
+    try:
+        proper_host_name = socket.gethostbyname(host)
+    except socket.gaierror as e:
+        print("Error, the URI address is invalid and its IP address cannot be found." )
+        
 
     s.connect((host, port))
 
@@ -51,7 +74,8 @@ def web_tester(url):
 
     header, alpn_protocol = sending_request(host, path, port)
 
-    processing_header(header)
+    if not checking_status(header):
+        return
 
     if alpn_protocol != None:
         if "h2" in alpn_protocol:
