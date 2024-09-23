@@ -3,14 +3,20 @@ import ssl
 import sys
 
 
-def checking_status(host, header, port):
-    if "404" in header:
+def check_h2(header):
+    if "Upgrade" in header or "HTTP/2" in header:
+        return "Yes"
+    
+    return "No"
+
+def checking_status(host, status_line, header, port):
+    if "404" in status_line:
         print("Error: 404 \nThe requested document does not exist on the server, access attempt failed.")
         return False
-    elif "505" in header:
+    elif "505" in status_line:
         print("Error: 505 \nHTTP Version Not Supported, access attempt failed.")
         return False
-    elif "302" or "301" in header:
+    elif "302" in status_line or "301" in status_line:
         for line in header.splitlines():
             if line.startswith("Location") or line.startswith("location"):
                 redirection_url = line.split(":", 1)[1].strip()
@@ -22,8 +28,9 @@ def checking_status(host, header, port):
                     web_tester(new_url)
                 else:
                     web_tester(redirection_url)
-                return False
-    elif "401" in line:
+        
+        return False
+    elif "401" in status_line:
         print("Error: 401 \nThe web page is password protected and cannot be accessed without proper credentials.")
         return False
     
@@ -76,21 +83,15 @@ def web_tester(url):
 
     header= sending_request(host, path, port)
 
-    print(header + "\n\n")
+    # print(header)
 
-    if not checking_status(host, header, port):
+    if not checking_status(host, header.splitlines()[0], header, port):
         return
 
-    # if alpn_protocol != None:
-    #     if "h2" in alpn_protocol:
-    #         h2_support = "Yes"
-    #     else:
-    #         h2_support = "No"
-    # else:
-    #     h2_support = "No"
+    h2_support = check_h2(header)
 
     print("Website: " + host)
-    # print("1. Supports http2: " + h2_support)
+    print("1. Supports http2: " + h2_support)
 
 
 if __name__ == "__main__":
