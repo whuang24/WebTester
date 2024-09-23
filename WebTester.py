@@ -3,24 +3,29 @@ import ssl
 import sys
 
 
-def checking_status(header):
-    header_lines = header.splitlines()
-    for line in header_lines:
-        if "404" in line:
-            print("Error: 404 \nThe requested document does not exist on the server, access attempt failed.")
-            return False
-        elif "505" in line:
-            print("Error: 505 \nHTTP Version Not Supported, access attempt failed.")
-            return False
-        elif "302" in line:
-            for subline in header_lines:
-                if "Location" in subline:
-                    redirection_url = subline.split(":", 1)[1]
+def checking_status(host, header, port):
+    if "404" in header:
+        print("Error: 404 \nThe requested document does not exist on the server, access attempt failed.")
+        return False
+    elif "505" in header:
+        print("Error: 505 \nHTTP Version Not Supported, access attempt failed.")
+        return False
+    elif "302" or "301" in header:
+        for line in header.splitlines():
+            if line.startswith("Location") or line.startswith("location"):
+                redirection_url = line.split(":", 1)[1].strip()
+                if redirection_url.startswith("/"):
+                    if port == 443:
+                        new_url = "https://" + host + redirection_url
+                    elif port == 80:
+                        new_url = "http://" + host + redirection_url
+                    web_tester(new_url)
+                else:
                     web_tester(redirection_url)
-                    return False
-        elif "401" in line:
-            print("Error: 401 \nThe web page is password protected and cannot be accessed without proper credentials.")
-            return False
+                return False
+    elif "401" in line:
+        print("Error: 401 \nThe web page is password protected and cannot be accessed without proper credentials.")
+        return False
     
     return True
         
@@ -29,7 +34,6 @@ def checking_status(header):
 
 def sending_request(host, path, port):
     context = ssl.create_default_context()
-    context.set_alpn_protocols(['http/1.1', 'h2'])
     s = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=host)
 
     try:
@@ -39,8 +43,6 @@ def sending_request(host, path, port):
         
 
     s.connect((host, port))
-
-    alpn_protocol = s.selected_alpn_protocol()
 
     request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: Keep-Alive\r\n\r\n"
     s.send(request.encode())
@@ -55,7 +57,7 @@ def sending_request(host, path, port):
     response_str = response.decode("utf-8", errors="ignore")
     header = response_str.split("\r\n\r\n", 1)[0]
 
-    return header, alpn_protocol
+    return header
 
 def web_tester(url):
     if url.startswith("https://"):
@@ -72,21 +74,23 @@ def web_tester(url):
     host = url_segments[0]
     path = "/" + url_segments[1] if len(url_segments) > 1 else "/"
 
-    header, alpn_protocol = sending_request(host, path, port)
+    header= sending_request(host, path, port)
 
-    if not checking_status(header):
+    print(header + "\n\n")
+
+    if not checking_status(host, header, port):
         return
 
-    if alpn_protocol != None:
-        if "h2" in alpn_protocol:
-            h2_support = "Yes"
-        else:
-            h2_support = "No"
-    else:
-        h2_support = "No"
+    # if alpn_protocol != None:
+    #     if "h2" in alpn_protocol:
+    #         h2_support = "Yes"
+    #     else:
+    #         h2_support = "No"
+    # else:
+    #     h2_support = "No"
 
     print("Website: " + host)
-    print("1. Supports http2: " + h2_support)
+    # print("1. Supports http2: " + h2_support)
 
 
 if __name__ == "__main__":
