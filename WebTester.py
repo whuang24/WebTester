@@ -109,8 +109,6 @@ def web_tester(url):
 
     header = sending_request(host, path, port)
 
-    print(header + "\n\n")
-
     match checking_status(host, header.splitlines()[0], header, port):
         case 404:
             return
