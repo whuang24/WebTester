@@ -30,6 +30,10 @@ def check_cookies(header):
 
 
 def check_h2(host, port):
+    #Because http does not support http/2, only https does
+    if port == 80:
+        return None
+
     context = ssl.create_default_context()
     context.set_alpn_protocols(['http/1.1', 'h2'])
 
@@ -69,8 +73,11 @@ def checking_status(host, status_line, header, port):
 
 
 def sending_request(host, path, port):
-    context = ssl.create_default_context()
-    s = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=host)
+    if (port == 443):
+        context = ssl.create_default_context()
+        s = context.wrap_socket(socket.socket(socket.AF_INET), server_hostname=host)
+    elif port == 80:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
         proper_host_name = socket.gethostbyname(host)
