@@ -7,31 +7,29 @@
   <h3 align="center">WebTester</h3>
 
   <p align="center">
-    A python built web page url tester.
+    A python built webpage url tester.
   </p>
 </div>
 
 
 ## About The Project
 
-This stock tracker allows users to keep track of stock prices, daily price trends, some basic stock data, and most recent news articles.
-
-This project is an ongoing one that is open for feature suggestions and expansion ideas because I want to build something more functional and capable of tracking more stock related information.
-
-Please be aware that given the project utilizes Firebase, I have removed my personal Firebase API keys and information.
+This is a python software that allows the users to send HTTP requests to a webpage to fetch for some of its basic information.
+It also organizes the information to identify whether the server in which the webpage is hosted on supports HTTP/2, whether the webpage is password-protected, able to list all of the cookies that exist on that webpage, and capable of redirecting itself to other host or paths if the requested webpage is temporarily or permanently moved.
 
 
 ## Project Limitations
 
-The following is a list of the limitations that the app currently contain due to a lack of technological resources and limited financial capabilities.
+The following is a list of the limitations that the project currently contain
 
-* The app can only have a max of 60 API calls per minute. (Please avoid adding many stocks to watchlist or viewing details of many different stocks in a short period of time)
-* The graph can only display stock data that is collected when the app is active, and only the specified stocks that are selected in the watchlist will have their stock data collected. This is due to the lack of access through Finnhub functionalities.
-* The app is built for minimum screen width of 600px because any smaller screens would have a much more difficult time seeing the stock graph.
-* The stocks that are available are only the NASDAQ and NYSE stocks.
-* The project is not supported on Firefox and Safari due to the Finnhub request policy.
+* It can only access webpages with URL that starts with http or https.
+* It is not capable of properly detecting and reporting all errors while sending or receiving requests.
+* It can only identify status codes of 200, 404, 505, 302, and 401. When receiving other status codes, it will not be able to identify if the request is successfully sent.
 
 
 ## Getting Started
 
-The app is accessible through the app icon above or the following URL.
+Type inside the terminal
+```
+python WebTester.py <URL that starts with https or http>
+```
