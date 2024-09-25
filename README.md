@@ -31,5 +31,10 @@ The following is a list of the limitations that the project currently contain
 
 Type inside the terminal
 ```
-python WebTester.py <*URL that starts with https or http*>
+python WebTester.py <URL that starts with https or http>
+```
+
+Example
+```
+python WebTester.py https://www.google.com/
 ```
