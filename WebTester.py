@@ -88,6 +88,11 @@ def sending_request(host, path, port):
     request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: Keep-Alive\r\n\r\n"
     s.send(request.encode())
 
+    print("---Request begin---")
+    print(request)
+    print("---Request end---")
+    print("HTTP request sent, awaiting response...\n")
+
     response = b''
     data = s.recv(4096)
     response += data
@@ -97,18 +102,21 @@ def sending_request(host, path, port):
     response_str = response.decode("utf-8", errors="ignore")
     header = response_str.split("\r\n\r\n", 1)[0]
 
+    print("---Response header ---")
+    print(header + "\n\n")
+
     return header
 
 def web_tester(url):
+    if not url.startswith("http://") and not url.startswith("https://"):
+        url = "http://" + url
+
     if url.startswith("https://"):
         cut_off_length = len("https://")
         port = 443
     elif url.startswith("http://"):
         cut_off_length = len("http://")
         port = 80
-    else:
-        print("The input format is not supported, please enter a URL with the https:// or https://")
-        return
     
     url_segments = url[cut_off_length: ].split("/", 1)
     host = url_segments[0]
@@ -136,6 +144,7 @@ def web_tester(url):
     else:
         h2_support = "No"
 
+    print("--- Output ---")
     print("Website: " + host)
     print("1. Supports http2: " + h2_support)
     print("2. List of Cookies:")
