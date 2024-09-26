@@ -119,17 +119,14 @@ def web_tester(url):
 
     header = sending_request(host, path, port)
 
-    match checking_status(host, header.splitlines()[0], header, port):
-        case 404:
-            return
-        case 505:
-            return
-        case 302:
-            return
-        case 401:
-            password_protected = "Yes"
-        case _:
-            password_protected = "No"
+    status_code = checking_status(host, header.splitlines()[0], header, port)
+
+    if status_code == 404 or status_code == 505 or status_code == 302:
+        return
+    elif status_code == 401:
+        password_protected = "Yes"
+    else:
+        password_protected = "No"
 
     cookies = check_cookies(header)
 
@@ -147,13 +144,12 @@ def web_tester(url):
 
     if len(cookies) != 0:
         for cookie in cookies:
-            match len(cookie):
-                case 1:
-                    print(cookie[0])
-                case 2:
-                    print(cookie[0] + ", " + cookie[1])
-                case 3:
-                    print(cookie[0] + ", " + cookie[1] + ", " + cookie[2])
+            if len(cookie) == 1:
+                print(cookie[0])
+            elif len(cookie) == 2:
+                print(cookie[0] + ", " + cookie[1])
+            elif len(cookie) == 3:
+                print(cookie[0] + ", " + cookie[1] + ", " + cookie[2])
     else:
         print("None")
     
