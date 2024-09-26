@@ -79,11 +79,6 @@ def sending_request(host, path, port):
     elif port == 80:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    try:
-        proper_host_name = socket.gethostbyname(host)
-    except socket.gaierror as e:
-        print(f"Error {e}, the URI address is invalid and its IP address cannot be found." )
-
     s.connect((host, port))
     request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\nConnection: Keep-Alive\r\n\r\n"
     s.send(request.encode())
