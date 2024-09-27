@@ -17,6 +17,8 @@
 This is a python software that allows the users to send HTTP requests to a webpage to fetch for some of its basic information.
 It also organizes the information to identify whether the server in which the webpage is hosted on supports HTTP/2, whether the webpage is password-protected, able to list all of the cookies that exist on that webpage, and capable of redirecting itself to other host or paths if the requested webpage is temporarily or permanently moved.
 
+The project defaults the header as "http://" if it is not specified at the beginning of the URL. Because of its redirecting capabilities, it would redirect the URL to "https://" if a status code 302 or 301 is received.
+
 
 ## Project Limitations
 
@@ -31,10 +33,10 @@ The following is a list of the limitations that the project currently contain
 
 Type inside the terminal
 ```
-python WebTester.py <URL that starts with https or http>
+python WebTester.py <URL>
 ```
 
 Example
 ```
-python WebTester.py https://www.google.com/
+python WebTester.py www.google.com/
 ```
